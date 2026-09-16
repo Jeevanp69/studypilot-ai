@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+
+    <div class="text-center mb-5">
+        <h1>Quiz Result</h1>
+
+        <h2 class="display-4 fw-bold mt-3">
+            {{ attempt.score }} / {{ attempt.total }}
+        </h2>
+
+        <p class="text-muted">
+            Score:
+            {{ ((attempt.score / attempt.total) * 100)|round(1) }}%
+        </p>
+    </div>
+
+    {% for answer in attempt.answers %}
+    <div class="card mb-3">
+        <div class="card-body">
+
+            <h5>
+                Question {{ answer.question_index + 1 }}
+            </h5>
+
+            {% if answer.is_correct %}
+                <div class="alert alert-success">
+                    Correct
+                </div>
+            {% else %}
+                <div class="alert alert-danger">
+                    Incorrect
+                </div>
+            {% endif %}
+
+            <p>
+                <strong>Your answer:</strong>
+                {{ answer.selected_answer }}
+            </p>
+
+            <p>
+                <strong>Correct answer:</strong>
+                {{ answer.correct_answer }}
+            </p>
+
+            {% set question = attempt.note.quiz %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <div class="mt-4">
+        <a
+            href="{{ url_for('main.dashboard') }}"
+            class="btn btn-primary"
+        >
+            Back to Dashboard
+        </a>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,13 @@
+﻿.venv/
+venv/
+.env
+local.db
+instance/
+__pycache__/
+*.pyc
+*.pyo
+app/uploads/*
+!app/uploads/.gitkeep
+data/
+.DS_Store
+Thumbs.db

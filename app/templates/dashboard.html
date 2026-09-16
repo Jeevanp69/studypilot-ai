@@ -1,0 +1,383 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>StudyPilot Dashboard</h1>
+            <p class="text-muted mb-0">
+                Your study materials and learning progress.
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for('main.upload') }}"
+            class="btn btn-primary"
+        >
+            Upload Study Material
+        </a>
+    </div>
+
+    <!-- Progress summary -->
+    <div class="row g-3 mb-5">
+
+        <div class="col-md-4">
+            <div class="card dashboard-metric h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">
+                        Study Materials
+                    </h6>
+
+                    <h2 class="fw-bold">
+                        {{ uploads|length }}
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card dashboard-metric h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">
+                        Quizzes Completed
+                    </h6>
+
+                    <h2 class="fw-bold">
+                        {{ total_quizzes }}
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card dashboard-metric h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">
+                        Average Score
+                    </h6>
+
+                    <h2 class="fw-bold">
+                        {{ average_score }}%
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card mb-5 insight-card">
+        <div class="card-body">
+
+            <div class="d-flex align-items-start gap-3">
+
+                <div class="insight-icon">
+                    ✦
+                </div>
+
+                <div>
+                    <h4 class="mb-1">
+                        Study Insight
+                    </h4>
+
+                    <p class="mb-0">
+                        {{ performance_message }}
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Study materials -->
+    <div class="mb-5">
+
+        <h3 class="mb-3">
+            My Study Materials
+        </h3>
+
+        {% if uploads %}
+
+            {% for upload in uploads %}
+
+            <div class="card mb-3 shadow-sm">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+                            <h5 class="mb-1">
+                                {{ upload.original_filename }}
+                            </h5>
+
+                            <small class="text-muted">
+                                Uploaded:
+                                {{ upload.uploaded_at.strftime("%d %b %Y, %I:%M %p") }}
+                            </small>
+                        </div>
+
+                        <div class="d-flex gap-2">
+
+                            {% if upload.note %}
+
+                            <a
+                                href="{{ url_for('main.view_note', upload_id=upload.id) }}"
+                                class="btn btn-outline-primary"
+                            >
+                                View Notes
+                            </a>
+
+                            <a
+                                href="{{ url_for('main.quiz', note_id=upload.note.id) }}"
+                                class="btn btn-success"
+                            >
+                                Take Quiz
+                            </a>
+
+                            {% else %}
+
+                            <span class="badge text-bg-warning">
+                                Processing
+                            </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <p class="mb-0 text-muted">
+                        No study materials yet.
+                    </p>
+                </div>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+    <!-- Quiz history -->
+    <div>
+
+        <h3 class="mb-3">
+            Quiz History
+        </h3>
+
+        {% if attempts %}
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead>
+                    <tr>
+                        <th>Study Material</th>
+                        <th>Score</th>
+                        <th>Percentage</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for attempt in attempts %}
+
+                    <tr>
+
+                        <td>
+                            {{ attempt.note.upload.original_filename }}
+                        </td>
+
+                        <td>
+                            {{ attempt.score }} / {{ attempt.total }}
+                        </td>
+
+                        <td>
+                            {{ ((attempt.score / attempt.total) * 100)|round(1) }}%
+                        </td>
+
+                        <td>
+                            {{ attempt.created_at.strftime("%d %b %Y, %I:%M %p") }}
+                        </td>
+
+                        <td>
+                            <a
+                                href="{{ url_for('main.quiz_result', attempt_id=attempt.id) }}"
+                                class="btn btn-sm btn-outline-secondary"
+                            >
+                                View Result
+                            </a>
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <p class="mb-0 text-muted">
+                    Complete your first quiz to see your history.
+                </p>
+            </div>
+        </div>
+
+        {% endif %}
+
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-body">
+
+            <h4 class="mb-3">
+                Recent Performance
+            </h4>
+
+            {% if recent_attempts %}
+
+                {% for attempt in recent_attempts %}
+
+                    {% set percentage =
+                        ((attempt.score / attempt.total) * 100)
+                        | round(1)
+                    %}
+
+                    <div class="mb-4">
+
+                        <div class="d-flex justify-content-between mb-2">
+
+                            <span class="fw-semibold">
+                                {{ attempt.note.upload.original_filename }}
+                            </span>
+
+                            <span class="fw-bold">
+                                {{ percentage }}%
+                            </span>
+
+                        </div>
+
+                        <div class="progress">
+                            <div
+                                class="progress-bar"
+                                role="progressbar"
+                                style="width: {{ percentage }}%"
+                                aria-valuenow="{{ percentage }}"
+                                aria-valuemin="0"
+                                aria-valuemax="100"
+                            ></div>
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p class="text-muted mb-0">
+                    Your quiz performance will appear here after
+                    completing a quiz.
+                </p>
+
+            {% endif %}
+
+        </div>
+    </div>
+
+    <div class="card mt-4 weak-area-card">
+        <div class="card-body">
+
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="weak-area-icon">
+                    !
+                </div>
+
+                <div>
+                    <h4 class="mb-1">
+                        Review These Questions
+                    </h4>
+
+                    <p class="mb-0 text-muted">
+                        Questions you answered incorrectly most recently.
+                    </p>
+                </div>
+            </div>
+
+            {% if weak_questions %}
+
+                {% for item in weak_questions %}
+
+                <div class="weak-question">
+
+                    <div class="d-flex justify-content-between gap-3">
+
+                        <div>
+                            <div class="fw-semibold mb-2">
+                                {{ loop.index }}.
+                                {{ item.question }}
+                            </div>
+
+                            <div class="small text-muted">
+                                Your answer:
+                                <span class="text-danger">
+                                    {{ item.selected_answer }}
+                                </span>
+                            </div>
+
+                            <div class="small mt-1">
+                                Correct answer:
+                                <span class="text-success fw-semibold">
+                                    {{ item.correct_answer }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <a
+                            href="{{ url_for('main.quiz', note_id=item.note_id) }}"
+                            class="btn btn-sm btn-outline-primary align-self-center"
+                        >
+                            Practice
+                        </a>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="empty-state">
+                    <h5>No weak questions yet</h5>
+
+                    <p class="mb-0">
+                        Complete a quiz to start building your revision list.
+                    </p>
+                </div>
+
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

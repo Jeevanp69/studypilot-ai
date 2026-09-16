@@ -1,6 +1,7 @@
 services:
   - type: web
     name: studypilot-ai
+    plan: free
     runtime: python
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn "run:app"
@@ -18,3 +19,4 @@ services:
 
 databases:
   - name: studypilot-db
+    plan: free

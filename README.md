@@ -2,7 +2,7 @@
 
 Upload your notes as a PDF and get back an AI-generated summary, 5 flashcards, and a 5-question quiz — a full-stack app with real accounts, so your generated notes are saved and yours to revisit.
 
-**Live demo:** _add your deployed link here once live_
+**Live demo:** https://studypilot-ai-iwh4.onrender.com/
 
 ![demo](docs/demo.gif)
 _(record a short GIF: signup → upload → view generated notes, drop it in `docs/`)_
@@ -12,7 +12,7 @@ _(record a short GIF: signup → upload → view generated notes, drop it in `do
 ```
 Sign up / log in (Flask-Login)
           ↓
-Upload a PDF  →  text extracted (pypdf)  →  structured prompt sent to Claude
+       Upload a PDF  →  text extracted (pypdf)  →  structured prompt sent to Gemini
           ↓                                          ↓
    saved to Postgres/SQLite            JSON response parsed into
    (Upload + GeneratedNote tables)      summary + flashcards + quiz
@@ -28,7 +28,7 @@ Rate-limited to 5 uploads/day per user (Flask-Limiter) to keep API costs predict
 - **Flask-SQLAlchemy** — ORM (`User`, `Upload`, `GeneratedNote` models)
 - **Flask-Login** — session-based auth
 - **Flask-Limiter** — per-user rate limiting
-- **Claude (Anthropic API)** — generates the summary/flashcards/quiz as structured JSON
+- **Gemini API** — generates the summary/flashcards/quiz as structured JSON
 - **Bootstrap 5** (via CDN) — styling, no separate frontend build step
 - **SQLite locally / Postgres in production** — same code, config-driven via `DATABASE_URL`
 
@@ -42,7 +42,7 @@ source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
 cp .env.example .env
-# edit .env — at minimum set ANTHROPIC_API_KEY and SECRET_KEY
+# edit .env — at minimum set GEMINI_API_KEY and SECRET_KEY
 
 python run.py
 # visit http://127.0.0.1:5000
@@ -55,7 +55,9 @@ No database setup needed locally — it defaults to a SQLite file (`local.db`) c
 1. Push this repo to GitHub.
 2. Create a new Web Service pointing at the repo. Build command: `pip install -r requirements.txt`. Start command: `gunicorn run:app`.
 3. Add a managed Postgres instance and copy its connection string.
-4. Set environment variables on the host: `SECRET_KEY`, `ANTHROPIC_API_KEY`, `DATABASE_URL` (the Postgres string from step 3).
+4. Set environment variables on the host: `SECRET_KEY`, `GEMINI_API_KEY`, and `DATABASE_URL` (the Postgres string from step 3).
+
+The included `render.yaml` can also create this web service and database. Once Render is connected to the GitHub repository, every push to the configured branch triggers a new deployment automatically.
 
 ## Notes / things to try extending
 

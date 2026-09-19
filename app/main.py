@@ -398,10 +398,12 @@ def quiz_result(attempt_id):
         results=results,
         percentage=percentage,
     )
-    
-    @main_bp.route("/health")
-    def health():
-        return {
+
+
+@main_bp.route("/health")
+def health():
+    return {
         "status": "ok",
         "service": "StudyPilot AI",
     }, 200
+    
